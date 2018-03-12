@@ -1,5 +1,7 @@
 const { db, Gardener, Plot, Vegetable } = require('./models');
 
+// let veggiesPromise;
+
 db.sync({force: true})
   .then(() => {
       console.log('DB synced!');
@@ -20,9 +22,31 @@ db.sync({force: true})
         color: 'Green',
         plantedOn: new Date()
       });
-      return Promise.all([veggie1, veggie2, veggie3]);
+
+      veggiesPromise = Promise.all([veggie1, veggie2, veggie3]);
+
+      return veggiesPromise;
   })
-  .then(() => db.close())
+  .then((veggies) => {
+    const gardener1 = Gardener.create({
+        name: 'Ragheed',
+        age: 37,
+        favoriteVegetableId: veggies[0].id
+    });
+    const gardener2 = Gardener.create({
+        name: 'Benito',
+        age: 28,
+        favoriteVegetableId: veggies[1].id
+    });
+
+    return Promise.all([gardener1, gardener2, veggies]);
+
+
+  })
+  .then((arr) => {
+    console.log(arr)
+    db.close()
+  })
   .catch(err => {
     console.log('Something went wrong');
     console.error(err);
